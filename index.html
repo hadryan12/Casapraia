@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Aluguel de Casas na Praia</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background-color: #121212;
+      color: #f0f0f0;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 30px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    header h1 {
+      font-size: 3rem;
+      color: #00bcd4;
+    }
+    .banner {
+      background: linear-gradient(135deg, #00bcd4, #006064);
+      color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 40px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,188,212,0.4);
+    }
+    .banner h2 { font-size: 2.2rem; margin-bottom: 10px; }
+    .banner p { font-size: 1.1rem; }
+    .beneficios {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+    .beneficio {
+      background: #1e1e1e;
+      padding: 15px 20px;
+      border-radius: 10px;
+      text-align: center;
+      width: 150px;
+      box-shadow: 0 0 10px rgba(0,188,212,0.2);
+      transition: transform 0.3s;
+    }
+    .beneficio:hover { transform: scale(1.05); }
+    .beneficio span { font-size: 30px; display: block; margin-bottom: 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px,1fr));
+      gap: 30px;
+    }
+    .casa {
+      background-color: #1e1e1e;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(0,188,212,0.2);
+      position: relative;
+      transition: transform 0.3s;
+    }
+    .casa:hover { transform: translateY(-5px); }
+    .imagem-container {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      overflow: hidden;
+    }
+    .imagem-container img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .imagem-container img.active { opacity: 1; }
+    .seta {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      border: none;
+      font-size: 24px;
+      padding: 10px;
+      cursor: pointer;
+      z-index: 1;
+      display: none;
+    }
+    .imagem-container:hover .seta { display: block; }
+    .seta.esquerda { left: 10px; }
+    .seta.direita { right: 10px; }
+    .info {
+      padding: 20px;
+    }
+    .info h2 {
+      font-size: 1.4rem;
+      color: #00bcd4;
+      margin-bottom: 10px;
+    }
+    .info p {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #cccccc;
+      margin-bottom: 10px;
+    }
+    .valor {
+      font-size: 1.1rem;
+      color: #00e676;
+      margin-bottom: 15px;
+    }
+    .reservar-btn {
+      background-color: #00bcd4;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+    .reservar-btn:hover { background-color: #0097a7; }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #1e1e1e;
+      padding: 25px;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 0 10px rgba(0,188,212,0.4);
+    }
+    .modal-content h3 {
+      text-align: center;
+      color: #00bcd4;
+      margin-bottom: 20px;
+    }
+    .modal-content label {
+      display: block;
+      margin-bottom: 5px;
+      color: #00bcd4;
+      font-weight: 600;
+    }
+    .modal-content input,
+    .modal-content button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: none;
+      border-radius: 6px;
+    }
+    .modal-content input {
+      background: #2c2c2c;
+      color: #fff;
+    }
+    .modal-content button {
+      background: #00bcd4;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+    .modal-content button:hover { background-color: #0097a7; }
+    .close-btn { background: red; }
+    .avaliacoes {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 50px 0;
+    }
+    .avaliacao {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 300px;
+      box-shadow: 0 0 10px rgba(0,188,212,0.2);
+    }
+    .avaliacao p:first-child {
+      font-size: 1.3rem;
+      color: #00bcd4;
+      margin-bottom: 10px;
+    }
+    .mapa {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 60px;
+    }
+    footer {
+      text-align: center;
+      padding: 30px 10px;
+      background: #0d0d0d;
+      color: #888;
+      border-top: 1px solid #333;
+    }
+    footer a { color: #00bcd4; margin: 0 10px; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <header><h1>Aluguel de Casas na Praia</h1></header>
+
+  <div class="banner">
+    <h2>Reserve sua casa dos sonhos na praia!</h2>
+    <p>Conforto, segurança e o melhor preço da região</p>
+  </div>
+
+  <div class="beneficios">
+    <div class="beneficio"><span>📶</span>Wi‑Fi</div>
+    <div class="beneficio"><span>🏊</span>Piscina</div>
+    <div class="beneficio"><span>❄️</span>Ar‑condicionado</div>
+    <div class="beneficio"><span>🍖</span>Churrasqueira</div>
+  </div>
+
+  <h1>Casas na Praia para Alugar</h1>
+
+  <div class="grid">
+    <!-- Casa 1 -->
+    <div class="casa">
+      <div class="imagem-container" data-index="0">
+        <button class="seta esquerda">&#8592;</button>
+        <button class="seta direita">&#8594;</button>
+        <img src="casa1.jpeg" class="active" />
+        <img src="casa2.jpeg" />
+        <img src="casa3.jpeg" />
+         <img src="casa4.jpeg" />
+          <img src="casa5.jpeg" />
+      </div>
+      <div class="info">
+        <h2>Casa Praia Grande com Piscina</h2>
+        <p>Localizada em Praia Grande Av. Alcídes Cândido dos Santos,, com 3 quartos, piscina .</p>
+        <div class="valor">R$ 250,00 por diária</div>
+        <button class="reservar-btn" onclick="abrirModal()">Reservar</button>
+      </div>
+    </div>
+
+    <!-- Casa 2 -->
+    <div class="casa">
+      <div class="imagem-container" data-index="0">
+        <button class="seta esquerda">&#8592;</button>
+        <button class="seta direita">&#8594;</button>
+        <img src="casa1(2).jpeg" class="active" />
+        <img src="casa2(2).jpeg" class="active" />
+         <img src="casa3(2).jpeg" class="active" />
+          <img src="casa4(2).jpeg" class="active" />
+           <img src="casa5(2).jpeg" class="active" />
+            <img src="casa6(2).jpeg" class="active" />
+             <img src="casa7(2).jpeg" class="active" />
+             <img src="casa8(2).jpeg" class="active" />
+              <img src="casa9(2).jpeg" class="active" />
+               <img src="casa10(2).jpeg" class="active" />
+                
+
+
+
+
+             
+      </div>
+      <div class="info">
+        <h2> Casa Disponivel em  Balneário Camboriú</h2>
+        <p>Casa charmosa com varanda, vista para o mar e rede para descanso.</p>
+        <div class="valor">R$ 350,00 por diária</div>
+        <button class="reservar-btn" onclick="abrirModal()">Reservar</button>
+      </div>
+    </div>
+
+    <!-- Casa 4 -->
+    <div class="casa">
+      <div class="imagem-container" data-index="0">
+        <button class="seta esquerda">&#8592;</button>
+        <button class="seta direita">&#8594;</button>
+       <img src="casa1(3).jpeg" class="active" />
+         <img src="casa2(3).jpeg" class="active" />
+          <img src="casa4(3).jpeg" class="active" />
+           <img src="casa4(3).jpeg" class="active" />
+            <img src="casa5(3).jpeg" class="active" />
+             <img src="casa6(3).jpeg" class="active" />
+              <img src="casa7(3).jpeg" class="active" />
+               <img src="casa8(3).jpeg" class="active" />
+                <img src="casa9(3).jpeg" class="active" />
+      </div>
+      <div class="info">
+        <h2>Casa Disponivel em Peruibe</h2>
+        <p>Casa aconchegante perto do mar, ideal para famílias pequenas.</p>
+        <div class="valor">R$ 200,00 por diária</div>
+        <button class="reservar-btn" onclick="abrirModal()">Reservar</button>
+      </div>
+    </div>
+
+    <!-- Casa 5 -->
+    <div class="casa">
+      <div class="imagem-container" data-index="0">
+        <button class="seta esquerda">&#8592;</button>
+        <button class="seta direita">&#8594;</button>
+        <img src="casa1(4).jpeg" class="active" />
+        <img src="casa2(4).jpeg" class="active" />
+        <img src="casa3(4).jpeg" class="active" />
+        <img src="casa4(4).jpeg" class="active" />
+        <img src="casa5(4).jpeg" class="active" />
+        <img src="casa6(4).jpeg" class="active" />
+        <img src="casa7(4).jpeg" class="active" />
+        <img src="casa8(4).jpeg" class="active" />
+       
+      </div>
+      <div class="info">
+        <h2>Casa Disponivel Em Mongaguá</h2>
+        <p>Luxo e conforto em cada detalhe, próxima aos melhores restaurantes.</p>
+        <div class="valor">R$ 320,00 por diária</div>
+        <button class="reservar-btn" onclick="abrirModal()">Reservar</button>
+      </div>
+    </div>
+
+    
+  <!-- Modal de reserva -->
+  <div class="modal" id="reservaModal">
+    <div class="modal-content">
+      <h3>Reserva da Casa</h3>
+      <label for="nome">Seu nome</label>
+      <input id="nome" type="text" placeholder="Digite seu nome" required />
+      <label for="email">Seu e-mail</label>
+      <input id="email" type="email" placeholder="Digite seu e-mail" required />
+      <label for="entrada">Data de entrada</label>
+      <input id="entrada" type="date" required />
+      <label for="saida">Data de saída</label>
+      <input id="saida" type="date" required />
+      <label for="hospedes">Número de hóspedes</label>
+      <input id="hospedes" type="number" placeholder="Ex: 2" min="1" required />
+      <button onclick="enviarWhatsapp()">Enviar Reserva pelo WhatsApp</button>
+      <button class="close-btn" onclick="fecharModal()">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Avaliações -->
+  <section class="avaliacoes" aria-label="Avaliações de Clientes">
+    <div class="avaliacao">
+      <p>⭐️⭐️⭐️⭐️⭐️</p>
+      <p>"Fiquei encantada com a estrutura da Casa Pé na Areia. Super recomendo!" - Ana P.</p>
+    </div>
+    <div class="avaliacao">
+      <p>⭐️⭐️⭐️⭐️⭐️</p>
+      <p>"Excelente atendimento e localização perfeita. Voltarei com certeza." - Carlos M.</p>
+    </div>
+    <div class="avaliacao">
+      <p>⭐️⭐️⭐️⭐️⭐️</p>
+      <p>"A Villa Exclusiva é tudo o que eu esperava para minhas férias." - Mariana S.</p>
+    </div>
+  </section>
+
+  <!-- Mapa -->
+  <section class="mapa" aria-label="Mapa da localização das casas">
+    <iframe
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3656.128613812706!2d-46.62787078445676!3d-23.595591567116773!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59c5409a48e7%3A0x3f9c2f0a995a37b8!2sPraia%20Grande%20SP!5e0!3m2!1spt-BR!2sbr!4v1693577289185!5m2!1spt-BR!2sbr"
+      width="600"
+      height="450"
+      style="border:0; border-radius: 12px;"
+      allowfullscreen=""
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      title="Mapa da localização das casas na praia"
+    ></iframe>
+  </section>
+
+  <!-- Rodapé -->
+  <footer>
+    <p>© 2025 Aluguel de Casas na Praia</p>
+    <p>
+      Siga-nos nas redes sociais:
+      <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a> |
+      <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a> |
+      <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">Twitter</a>
+    </p>
+  </footer>
+
+  <script>
+    // Galeria de imagens para cada casa
+    document.querySelectorAll('.imagem-container').forEach(container => {
+      const images = container.querySelectorAll('img');
+      let index = 0;
+      const update = () => {
+        images.forEach((img, i) => img.classList.toggle('active', i === index));
+      };
+      container.querySelector('.seta.esquerda').addEventListener('click', () => {
+        index = (index - 1 + images.length) % images.length;
+        update();
+      });
+      container.querySelector('.seta.direita').addEventListener('click', () => {
+        index = (index + 1) % images.length;
+        update();
+      });
+    });
+
+    function abrirModal() {
+      document.getElementById('reservaModal').style.display = 'flex';
+    }
+    function fecharModal() {
+      document.getElementById('reservaModal').style.display = 'none';
+    }
+    function enviarWhatsapp() {
+      const nome = document.getElementById('nome').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const entrada = document.getElementById('entrada').value;
+      const saida = document.getElementById('saida').value;
+      const hospedes = document.getElementById('hospedes').value;
+
+      if (!nome || !email || !entrada || !saida || !hospedes) {
+        alert('Por favor, preencha todos os campos corretamente.');
+        return;
+      }
+
+      const mensagem =
+        `Olá! Gostaria de fazer uma reserva:\n\n` +
+        `Nome: ${nome}\nEmail: ${email}\nData de entrada: ${entrada}\nData de saída: ${saida}\n` +
+        `Número de hóspedes: ${hospedes}`;
+
+      const telefone = '5511948036787';
+      const url = `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
+      window.open(url, '_blank');
+    }
+  </script>
+</body>
+</html>
